@@ -7,18 +7,40 @@ fractal_angles  = []
 fractal_lengths = []
 
 # stroke width and color of the lines
-LINE_WIDTH = 3
+LINE_WIDTH = 1
 LINE_FILL = 'black'
 
+# length and iterations of the fracta
+FRACTAL_LENGTH = 300
+prev_iters = 1
+
+
 # window height and width
-WINDOW_HEIGHT = 500
-WINDOW_WIDTH = 500
+WINDOW_HEIGHT = 750
+WINDOW_WIDTH = 750
 
 # main window and canvas of the fractal
 root = Tk()
 root.title("Interesting fractal")
 C = Canvas(root, bg="white", height=WINDOW_HEIGHT, width=WINDOW_WIDTH)
+C.pack()
+ITERATIONS = IntVar(value=1)
 
+
+scale_widget = Scale(root, from_=1, to=7,
+                             orient=HORIZONTAL,
+                             length=500, variable=ITERATIONS)
+
+scale_widget.set(1)
+scale_widget.pack()
+
+def reset_fractal():
+    global prev_iters
+    if prev_iters != ITERATIONS.get():
+        C.delete('all')
+        draw_fractal(ITERATIONS.get(), FRACTAL_LENGTH)
+        prev_iters = ITERATIONS.get()
+    root.after(10, reset_fractal)
 def forward(l):
     fractal_angles.append(0)
     fractal_lengths.append(l)
@@ -79,8 +101,8 @@ def draw_fractal(iter, length):
     for i in range(iter):
         reset()
         fractal_step(i, length)
-        draw_all_steps(C, .5 * (WINDOW_WIDTH - length), .5 * WINDOW_HEIGHT)
+        draw_all_steps(C, .5 * (WINDOW_WIDTH - length), .5 * (WINDOW_HEIGHT))
 
-draw_fractal(2, 100)
-
+draw_fractal(ITERATIONS.get(), FRACTAL_LENGTH)
+root.after(10, reset_fractal)
 root.mainloop()
