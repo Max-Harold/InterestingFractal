@@ -3,7 +3,9 @@ from math import sin, cos, pi
 
 
 # the turns and steps that the 'turtle' will make
-fractal_angles  = []
+all_fractal_angles  = {}
+all_fractal_lengths = {}
+fractal_angles = []
 fractal_lengths = []
 
 # stroke width and color of the lines
@@ -34,6 +36,7 @@ scale_widget = Scale(root, from_=1, to=7,
 scale_widget.set(1)
 scale_widget.pack()
 
+# periodic function that checks if scale widget value has changed
 def reset_fractal():
     global prev_iters
     if prev_iters != ITERATIONS.get():
@@ -55,11 +58,17 @@ def left(theta):
     right(-theta)
 
 # resets the turtle angles
-def reset():
+def reevaluate(iter, length):
+    global all_fractal_angles
+    global all_fractal_lengths
     global fractal_angles
     global fractal_lengths
-    fractal_angles  = []
-    fractal_lengths = []
+    if iter not in all_fractal_angles:
+        fractal_step(iter, FRACTAL_LENGTH)
+        all_fractal_angles[iter] = fractal_angles
+        all_fractal_lengths[iter] = fractal_lengths
+    fractal_lengths = all_fractal_lengths[iter]
+    fractal_angles = all_fractal_angles[iter]
 
 def draw_all_steps(canvas, x, y):
     a, b = x, y
@@ -99,8 +108,7 @@ def fractal_step(iter, l):
 # draws the whole fractal
 def draw_fractal(iter, length):
     for i in range(iter):
-        reset()
-        fractal_step(i, length)
+        reevaluate(iter, length)
         draw_all_steps(C, .5 * (WINDOW_WIDTH - length), .5 * (WINDOW_HEIGHT))
 
 draw_fractal(ITERATIONS.get(), FRACTAL_LENGTH)
