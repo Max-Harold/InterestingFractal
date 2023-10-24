@@ -73,7 +73,6 @@ def reevaluate(iter, length):
     global fractal_angles
     global fractal_lengths
     if iter not in all_fractal_angles:
-        print("Starting iteration "+str(iter))
         fractal_lengths = []
         fractal_angles = []
         fractal_step(iter, length)
