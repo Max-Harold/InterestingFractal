@@ -26,21 +26,29 @@ root = Tk()
 root.title("Interesting fractal")
 C = Canvas(root, bg="white", height=WINDOW_HEIGHT, width=WINDOW_WIDTH)
 C.pack()
-ITERATIONS = IntVar(value=1)
 
+# Text that indicates the iterations modifier
+iterations_text = Label(root, text="Iterations:")
+iterations_text.config(font=("Courier", 14))
+iterations_text.pack()
 
-scale_widget = Scale(root, from_=1, to=7,
+# the number of iterations the user desires
+ITERATIONS = IntVar(value=0)
+
+# the widget that allows the user to change the number of iterations of the fractal
+iteration_modifier = Scale(root, from_=0, to=6,
                              orient=HORIZONTAL,
-                             length=500, variable=ITERATIONS)
+                             length=600, variable=ITERATIONS)
 
-scale_widget.set(1)
-scale_widget.pack()
+iteration_modifier.set(0)
+iteration_modifier.pack()
 
 # periodic function that checks if scale widget value has changed
 def reset_fractal():
     global prev_iters
     if prev_iters != ITERATIONS.get():
-        C.delete('all')
+        if prev_iters > ITERATIONS.get():
+            C.delete('all')
         draw_fractal(ITERATIONS.get(), FRACTAL_LENGTH)
         prev_iters = ITERATIONS.get()
     root.after(10, reset_fractal)
@@ -57,20 +65,27 @@ def right(theta):
 def left(theta):
     right(-theta)
 
-# resets the turtle angles
+# resets the turtle angles and ensures that the path for the desired iteration is only generated once 
+# and stored in all_fractal_angles and all_fractal_lengths
 def reevaluate(iter, length):
     global all_fractal_angles
     global all_fractal_lengths
     global fractal_angles
     global fractal_lengths
     if iter not in all_fractal_angles:
-        fractal_step(iter, FRACTAL_LENGTH)
+        print("Starting iteration "+str(iter))
+        fractal_lengths = []
+        fractal_angles = []
+        fractal_step(iter, length)
         all_fractal_angles[iter] = fractal_angles
         all_fractal_lengths[iter] = fractal_lengths
     fractal_lengths = all_fractal_lengths[iter]
     fractal_angles = all_fractal_angles[iter]
 
+# draws all the steps present in fractal_angles and fractal_lines
 def draw_all_steps(canvas, x, y):
+    global fractal_angles
+    global fractal_lengths
     a, b = x, y
     theta = 0
     steps_len = len(fractal_lengths)
@@ -107,8 +122,8 @@ def fractal_step(iter, l):
 
 # draws the whole fractal
 def draw_fractal(iter, length):
-    for i in range(iter):
-        reevaluate(iter, length)
+    for i in range(iter+1):
+        reevaluate(i, length)
         draw_all_steps(C, .5 * (WINDOW_WIDTH - length), .5 * (WINDOW_HEIGHT))
 
 draw_fractal(ITERATIONS.get(), FRACTAL_LENGTH)
